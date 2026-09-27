@@ -4,7 +4,8 @@ import { bellmanFord } from '../algorithms/bellmanFord'
 import { aStar } from '../algorithms/astar'
 import { bidirectionalDijkstra } from '../algorithms/bidirectionalDijkstra'
 import { generateRandomGraph } from '../utils/graphUtils'
-import { Download, Upload, Play, RotateCcw } from 'lucide-react'
+import { Download, Upload, RotateCcw } from 'lucide-react'
+import ScanGridButton from './ScanGridButton'
 
 interface ControlPanelProps {
   graph: Graph
@@ -128,18 +129,23 @@ export default function ControlPanel({
   }
 
   return (
-    <div className="w-72 bg-gray-800 border-r border-gray-700 p-4 overflow-auto">
-      <h2 className="text-lg font-semibold text-gray-300 mb-4">Controls</h2>
+    <div className="w-80 glass-panel rounded-xl p-5 overflow-auto card-hover slide-in">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
+          <span className="text-xl">⚡</span>
+        </div>
+        <h2 className="text-xl font-bold gold-gradient-text">Controls</h2>
+      </div>
 
       {/* Algorithm Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-400 mb-2">
-          Algorithm
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+          <span className="text-yellow-400">🎯</span> Algorithm
         </label>
         <select
           value={selectedAlgorithm}
           onChange={(e) => setSelectedAlgorithm(e.target.value)}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+          className="w-full input-gold rounded-lg px-4 py-3 text-sm"
         >
           <option value="dijkstra">Dijkstra (Binary Heap)</option>
           <option value="bellman-ford">Bellman-Ford</option>
@@ -149,14 +155,14 @@ export default function ControlPanel({
       </div>
 
       {/* Source Node Selection */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-400 mb-2">
-          Source Node
+      <div className="mb-5">
+        <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+          <span className="text-yellow-400">📍</span> Source Node
         </label>
         <select
           value={sourceNode}
           onChange={(e) => setSourceNode(Number(e.target.value))}
-          className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-blue-500"
+          className="w-full input-gold rounded-lg px-4 py-3 text-sm"
         >
           {graph.nodes.map((node) => (
             <option key={node.id} value={node.id}>
@@ -167,39 +173,75 @@ export default function ControlPanel({
       </div>
 
       {/* Run Button */}
-      <button
-        onClick={runAlgorithm}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded mb-6 flex items-center justify-center gap-2 transition-colors"
-      >
-        <Play size={16} />
-        Run Algorithm
-      </button>
+      <div className="mb-6">
+        <ScanGridButton
+          label="RUN ALGORITHM"
+          addIcon={true}
+          icon={{
+            type: "symbol",
+            symbol: "▶",
+            size: 24,
+            color: "#FFD700",
+            hoverColor: "#FFA500",
+            side: "left",
+            padding: 8,
+          }}
+          colors={{
+            fill: "rgba(0, 0, 0, 0.6)",
+            hoverFill: "rgba(0, 0, 0, 0.8)",
+            textColor: "#FFD700",
+            hoverTextColor: "#FFA500",
+          }}
+          scan={{
+            color: "#FFD700",
+            speed: 60,
+          }}
+          border={{
+            borderWidth: 2,
+            borderStyle: "solid",
+            borderColor: "rgba(255, 215, 0, 0.5)",
+          }}
+          rounded={8}
+          padding="16px 24px"
+          font={{
+            fontFamily: "Inter",
+            fontWeight: 600,
+            fontSize: 16,
+            letterSpacing: "1px",
+          }}
+          glitchIntensity={2}
+          onClick={runAlgorithm}
+          style={{ width: "100%" }}
+        />
+      </div>
 
       {/* Graph Operations */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-400 mb-3">Graph Operations</h3>
+      <div className="mb-5">
+        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+          <span className="text-yellow-400">🔧</span> Graph Operations
+        </h3>
         <div className="space-y-2">
           <button
             onClick={generateGraph}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded transition-colors"
+            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
           >
-            Generate Random Graph
+            <span>🎲</span> Generate Random Graph
           </button>
           <button
             onClick={addEdge}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded transition-colors"
+            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
           >
-            Add Random Edge
+            <span>➕</span> Add Random Edge
           </button>
           <button
             onClick={removeNode}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded transition-colors"
+            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
           >
-            Remove Last Node
+            <span>➖</span> Remove Last Node
           </button>
           <button
             onClick={resetGraph}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors"
+            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
           >
             <RotateCcw size={14} />
             Reset Failures
@@ -208,17 +250,19 @@ export default function ControlPanel({
       </div>
 
       {/* Import/Export */}
-      <div className="mb-6">
-        <h3 className="text-sm font-medium text-gray-400 mb-3">Import / Export</h3>
+      <div className="mb-5">
+        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+          <span className="text-yellow-400">💾</span> Import / Export
+        </h3>
         <div className="space-y-2">
           <button
             onClick={exportGraph}
-            className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors"
+            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
           >
             <Download size={14} />
             Export JSON
           </button>
-          <label className="w-full bg-gray-700 hover:bg-gray-600 text-white text-sm py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors cursor-pointer">
+          <label className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 cursor-pointer">
             <Upload size={14} />
             Import JSON
             <input
@@ -232,20 +276,28 @@ export default function ControlPanel({
       </div>
 
       {/* Graph Stats */}
-      <div className="bg-gray-700 rounded p-3">
-        <h3 className="text-sm font-medium text-gray-400 mb-2">Graph Stats</h3>
-        <div className="text-sm text-gray-300 space-y-1">
-          <div className="flex justify-between">
-            <span>Nodes:</span>
-            <span className="font-medium">{graph.nodes.length}</span>
+      <div className="glass-panel rounded-xl p-4 gold-border-gradient">
+        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
+          <span className="text-yellow-400">📊</span> Graph Stats
+        </h3>
+        <div className="text-sm text-gray-200 space-y-2">
+          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+            <span className="flex items-center gap-2">
+              <span className="text-yellow-400">🔵</span> Nodes
+            </span>
+            <span className="font-bold text-yellow-400 text-lg">{graph.nodes.length}</span>
           </div>
-          <div className="flex justify-between">
-            <span>Edges:</span>
-            <span className="font-medium">{graph.edges.length}</span>
+          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+            <span className="flex items-center gap-2">
+              <span className="text-yellow-400">🔗</span> Edges
+            </span>
+            <span className="font-bold text-yellow-400 text-lg">{graph.edges.length}</span>
           </div>
-          <div className="flex justify-between">
-            <span>Failed Edges:</span>
-            <span className="font-medium text-red-400">
+          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+            <span className="flex items-center gap-2">
+              <span className="text-red-400">❌</span> Failed Edges
+            </span>
+            <span className="font-bold text-red-400 text-lg">
               {graph.edges.filter((e) => e.status === 'failed').length}
             </span>
           </div>

@@ -34,7 +34,7 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .attr('markerHeight', 6)
       .append('path')
       .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-      .attr('fill', '#6b7280')
+      .attr('fill', '#9ca3af')
 
     // Create arrow marker for highlighted paths
     svg.append('defs')
@@ -48,7 +48,7 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .attr('markerHeight', 6)
       .append('path')
       .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-      .attr('fill', '#3b82f6')
+      .attr('fill', '#FFD700')
 
     // Get highlighted edges from results
     const highlightedEdges = new Set<string>()
@@ -75,9 +75,10 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .attr('stroke', (d: any) => {
         if (d.status === 'failed') return '#ef4444'
         const key = `${d.source}-${d.target}`
-        return highlightedEdges.has(key) ? '#3b82f6' : '#6b7280'
+        return highlightedEdges.has(key) ? '#FFD700' : 'rgba(255, 215, 0, 0.4)'
       })
       .attr('stroke-width', (d: any) => highlightedEdges.has(`${d.source}-${d.target}`) ? 3 : 2)
+      .attr('stroke-opacity', (d: any) => highlightedEdges.has(`${d.source}-${d.target}`) ? 1 : 0.6)
       .attr('marker-end', (d: any) => highlightedEdges.has(`${d.source}-${d.target}`) ? 'url(#arrowhead-highlight)' : 'url(#arrowhead)')
       .style('cursor', 'pointer')
       .on('click', (event: MouseEvent, d: any) => {
@@ -121,10 +122,10 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .attr('r', 20)
       .attr('fill', (d: any) => {
         if (d.status === 'failed') return '#ef4444'
-        if (selectedNode === d.id) return '#3b82f6'
-        return '#1f2937'
+        if (selectedNode === d.id) return 'rgba(255, 215, 0, 0.3)'
+        return 'rgba(0, 0, 0, 0.6)'
       })
-      .attr('stroke', (d: any) => highlightedEdges.size > 0 && results?.paths.some((p) => p.path.includes(d.id)) ? '#3b82f6' : '#374151')
+      .attr('stroke', (d: any) => highlightedEdges.size > 0 && results?.paths.some((p) => p.path.includes(d.id)) ? '#FFD700' : 'rgba(255, 215, 0, 0.5)')
       .attr('stroke-width', (d: any) => highlightedEdges.size > 0 && results?.paths.some((p) => p.path.includes(d.id)) ? 3 : 2)
       .style('cursor', 'grab')
       .on('mousedown', (event: MouseEvent, d: any) => {
@@ -187,16 +188,27 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
   }, [graph, results, selectedNode, draggedNode])
 
   return (
-    <div className="flex-1 bg-gray-800 p-4 overflow-auto">
+    <div className="flex-1 glass-panel rounded-xl p-4 overflow-auto card-hover fade-in">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold gold-gradient-text flex items-center gap-2">
+          <span>🌐</span> Network Graph
+        </h3>
+        <div className="glass-panel px-3 py-1 rounded-full text-xs text-yellow-400">
+          Interactive Canvas
+        </div>
+      </div>
       <svg
         ref={svgRef}
         width="100%"
         height="100%"
         viewBox="0 0 800 600"
-        className="bg-gray-900 rounded-lg"
+        className="bg-black/50 border border-yellow-600/30 rounded-xl backdrop-blur-md gold-glow"
       />
-      <div className="mt-4 text-sm text-gray-400">
-        <p>• Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure</p>
+      <div className="mt-4 p-3 glass-panel rounded-lg">
+        <p className="text-sm text-gray-300 flex items-center gap-2">
+          <span className="text-yellow-400">💡</span>
+          <span>Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure</span>
+        </p>
       </div>
     </div>
   )
