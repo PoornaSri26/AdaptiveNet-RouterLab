@@ -5,9 +5,9 @@ import { bidirectionalDijkstra } from '../algorithms/bidirectionalDijkstra'
 import { generateRandomGraph } from '../utils/graphUtils'
 import { graphPresets } from '../utils/graphPresets'
 import { toast } from '../utils/toast'
-import { Download, Upload, RotateCcw, Search, ChevronDown, ChevronUp, Undo2, Redo2, Settings, Target, Wrench, Database, BarChart2, Circle, Link2, X, Play, Clock, AlertTriangle, Route, Sparkles, MapPin, Plus, Minus } from 'lucide-react'
+import { Download, Upload, RotateCcw, Search, ChevronDown, ChevronUp, Undo2, Redo2, Settings, Target, Wrench, Database, BarChart2, Circle, Link2, X, Play, Clock, AlertTriangle, Route, Sparkles, MapPin, Plus, Minus, ArrowDown, ArrowUp } from 'lucide-react'
 import ScanGridButton from './ScanGridButton'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useGraphStore } from '../store/graphStore'
 import { useUIStore } from '../store/uiStore'
 import { useAlgorithmStore } from '../store/algorithmStore'
@@ -15,6 +15,7 @@ import { useTheme } from '../contexts/ThemeContext'
 
 export default function ControlPanel() {
   const { theme } = useTheme()
+  const panelRef = useRef<HTMLDivElement>(null)
   const graph = useGraphStore((state) => state.graph)
   const setGraph = useGraphStore((state) => state.setGraph)
   const undo = useGraphStore((state) => state.undo)
@@ -183,7 +184,7 @@ export default function ControlPanel() {
   )
 
   return (
-    <div className="w-full glass-panel rounded-xl p-4 overflow-auto card-hover slide-in">
+    <div ref={panelRef} className="w-full glass-panel rounded-xl p-4 overflow-auto card-hover slide-in">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
@@ -207,6 +208,28 @@ export default function ControlPanel() {
             title="Redo"
           >
             <Redo2 size={14} />
+          </button>
+          <button
+            onClick={() => {
+              if (panelRef.current) {
+                panelRef.current.scrollTo({ top: 0, behavior: 'smooth' })
+              }
+            }}
+            className="w-10 h-10 rounded-lg input-gold transition-all flex items-center justify-center flex-shrink-0"
+            title="Scroll to top"
+          >
+            <ArrowUp size={14} />
+          </button>
+          <button
+            onClick={() => {
+              if (panelRef.current) {
+                panelRef.current.scrollTo({ top: panelRef.current.scrollHeight, behavior: 'smooth' })
+              }
+            }}
+            className="w-10 h-10 rounded-lg input-gold transition-all flex items-center justify-center flex-shrink-0"
+            title="Scroll to bottom"
+          >
+            <ArrowDown size={14} />
           </button>
         </div>
       </div>
