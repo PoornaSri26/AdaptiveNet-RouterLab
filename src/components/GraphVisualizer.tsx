@@ -11,11 +11,14 @@ export default function GraphVisualizer() {
   const setGraph = useGraphStore((state) => state.setGraph)
   const results = useAlgorithmStore((state) => state.results)
   const svgRef = useRef<SVGSVGElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [selectedNode, setSelectedNode] = useState<number | null>(null)
   const [draggedNode, setDraggedNode] = useState<number | null>(null)
   const [zoom, setZoom] = useState(1)
   const [hoveredEdge, setHoveredEdge] = useState<{ source: number; target: number; weight: number } | null>(null)
   const [snapToGrid, setSnapToGrid] = useState(false)
+  const [containerSize, setContainerSize] = useState({ width: 800, height: 600 })
+  const [graphScale, setGraphScale] = useState(1)
   const GRID_SIZE = 20
 
   const snapToGridValue = useCallback((value: number) => {
@@ -55,10 +58,33 @@ export default function GraphVisualizer() {
   }, [])
 
   useEffect(() => {
+    if (!containerRef.current) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        setContainerSize({ width, height })
+        setGraphScale(Math.min(width / 800, height / 600, 1))
+      }
+    })
+
+    resizeObserver.observe(containerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
+
+  const scale = Math.min(containerSize.width / 800, containerSize.height / 600, 1)
+
+  useEffect(() => {
     if (!svgRef.current) return
 
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
+
+    // Scale coordinates to fit container
+    const scale = graphScale
 
     // Create arrow marker
     svg.append('defs')
@@ -106,10 +132,10 @@ export default function GraphVisualizer() {
       .data(graph.edges)
       .enter()
       .append('line')
-      .attr('x1', (d: any) => graph.nodes.find((n) => n.id === d.source)!.x)
-      .attr('y1', (d: any) => graph.nodes.find((n) => n.id === d.source)!.y)
-      .attr('x2', (d: any) => graph.nodes.find((n) => n.id === d.target)!.x)
-      .attr('y2', (d: any) => graph.nodes.find((n) => n.id === d.target)!.y)
+      .attr('x1', (d: any) => graph.nodes.find((n) => n.id === d.source)!.x * scale)
+      .attr('y1', (d: any) => graph.nodes.find((n) => n.id === d.source)!.y * scale)
+      .attr('x2', (d: any) => graph.nodes.find((n) => n.id === d.target)!.x * scale)
+      .attr('y2', (d: any) => graph.nodes.find((n) => n.id === d.target)!.y * scale)
       .attr('stroke', (d: any) => {
         if (d.status === 'failed') return '#ef4444'
         const key = `${d.source}-${d.target}`
@@ -143,16 +169,16 @@ export default function GraphVisualizer() {
       .attr('x', (d: any) => {
         const n1 = graph.nodes.find((n) => n.id === d.source)!
         const n2 = graph.nodes.find((n) => n.id === d.target)!
-        return (n1.x + n2.x) / 2
+        return ((n1.x + n2.x) / 2) * scale
       })
       .attr('y', (d: any) => {
         const n1 = graph.nodes.find((n) => n.id === d.source)!
         const n2 = graph.nodes.find((n) => n.id === d.target)!
-        return (n1.y + n2.y) / 2 - 10
+        return ((n1.y + n2.y) / 2 - 10) * scale
       })
       .attr('text-anchor', 'middle')
       .attr('fill', '#9ca3af')
-      .attr('font-size', '12px')
+      .attr('font-size', `${12 * scale}px`)
       .text((d: any) => d.weight)
 
     // Draw nodes
@@ -160,9 +186,9 @@ export default function GraphVisualizer() {
       .data(graph.nodes)
       .enter()
       .append('circle')
-      .attr('cx', (d: any) => d.x)
-      .attr('cy', (d: any) => d.y)
-      .attr('r', 20)
+      .attr('cx', (d: any) => d.x * scale)
+      .attr('cy', (d: any) => d.y * scale)
+      .attr('r', 20 * scale)
       .attr('fill', (d: any) => {
         if (d.status === 'failed') return '#ef4444'
         if (selectedNode === d.id) return 'rgba(255, 215, 0, 0.3)'
@@ -187,11 +213,11 @@ export default function GraphVisualizer() {
       .enter()
       .append('text')
       .attr('class', 'node-label')
-      .attr('x', (d: any) => d.x)
-      .attr('y', (d: any) => d.y + 5)
+      .attr('x', (d: any) => d.x * scale)
+      .attr('y', (d: any) => (d.y + 5) * scale)
       .attr('text-anchor', 'middle')
       .attr('fill', '#ffffff')
-      .attr('font-size', '14px')
+      .attr('font-size', `${14 * scale}px`)
       .attr('font-weight', 'bold')
       .style('pointer-events', 'none')
       .text((d: any) => d.label)
@@ -221,8 +247,10 @@ export default function GraphVisualizer() {
     svg.on('mousemove', (event: MouseEvent) => {
       if (draggedNode !== null) {
         const [x, y] = d3.pointer(event)
-        const snappedX = snapToGridValue(x)
-        const snappedY = snapToGridValue(y)
+        const scaledX = x / scale
+        const scaledY = y / scale
+        const snappedX = snapToGridValue(scaledX)
+        const snappedY = snapToGridValue(scaledY)
         const newNodes = graph.nodes.map((node) =>
           node.id === draggedNode ? { ...node, x: snappedX, y: snappedY } : node
         )
@@ -241,12 +269,14 @@ export default function GraphVisualizer() {
     // Double click to add node
     svg.on('dblclick', (event: MouseEvent) => {
       const [x, y] = d3.pointer(event)
+      const scaledX = x / scale
+      const scaledY = y / scale
       const newId = Math.max(...graph.nodes.map((n) => n.id)) + 1
       const newNode = {
         id: newId,
         label: String.fromCharCode(65 + (newId % 26)) + (newId >= 26 ? Math.floor(newId / 26) : ''),
-        x: snapToGridValue(x),
-        y: snapToGridValue(y),
+        x: snapToGridValue(scaledX),
+        y: snapToGridValue(scaledY),
       }
       setGraph({ ...graph, nodes: [...graph.nodes, newNode] })
     })
@@ -258,7 +288,7 @@ export default function GraphVisualizer() {
       setZoom(prev => Math.max(0.3, Math.min(3, prev * delta)))
     })
 
-  }, [graph, results, selectedNode, draggedNode, snapToGridValue])
+  }, [graph, results, selectedNode, draggedNode, snapToGridValue, graphScale])
 
   return (
     <div className="flex-1 glass-panel rounded-xl p-2 md:p-4 overflow-auto card-hover fade-in relative">
@@ -279,12 +309,12 @@ export default function GraphVisualizer() {
         </div>
       </div>
       
-      <div className="relative min-h-[300px] md:min-h-[400px]">
+      <div ref={containerRef} className="relative min-h-[300px] md:min-h-[400px]">
         <svg
           ref={svgRef}
           width="100%"
           height="100%"
-          viewBox="0 0 800 600"
+          viewBox={`0 0 ${containerSize.width} ${containerSize.height}`}
           preserveAspectRatio="xMidYMid meet"
           className="bg-black/50 border border-yellow-600/30 rounded-xl backdrop-blur-md gold-glow"
         />

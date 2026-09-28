@@ -70,6 +70,7 @@ function AppContent() {
                 glitchIntensity={1}
                 link="https://github.com/PoornaSri26/AdaptiveNet-RouterLab"
                 newTab={true}
+                style={{ height: "44px" }}
               />
             </div>
           </div>
