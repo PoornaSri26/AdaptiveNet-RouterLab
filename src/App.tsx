@@ -76,13 +76,13 @@ function AppContent() {
           </div>
         </header>
         
-        <div className="flex-1 overflow-hidden p-3 md:p-4">
-          <div className="flex flex-col md:flex-row gap-3 md:gap-4 h-full">
+        <div className="flex-1 overflow-hidden p-4 md:p-5">
+          <div className="flex flex-col md:flex-row gap-4 md:gap-5 h-full">
             <div className="w-full md:w-80 flex-shrink-0">
               <ControlPanel />
             </div>
             
-            <div className="flex-1 flex flex-col gap-3 md:gap-4 min-w-0">
+            <div className="flex-1 flex flex-col gap-4 md:gap-5 min-w-0">
               <GraphVisualizer />
               <AlgorithmPanel />
             </div>
