@@ -5,7 +5,7 @@ export default function AlgorithmPanel() {
   const results = useAlgorithmStore((state) => state.results)
   if (!results) {
     return (
-      <div className="glass-panel rounded-xl p-3 md:p-5 fade-in">
+      <div className="glass-panel rounded-xl p-4 md:p-5 fade-in">
         <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
             <span className="text-lg md:text-xl">📈</span>
@@ -21,7 +21,7 @@ export default function AlgorithmPanel() {
   }
 
   return (
-    <div className="glass-panel rounded-xl p-3 md:p-5 overflow-auto fade-in">
+    <div className="glass-panel rounded-xl p-4 md:p-5 overflow-auto fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-4 gap-2">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">

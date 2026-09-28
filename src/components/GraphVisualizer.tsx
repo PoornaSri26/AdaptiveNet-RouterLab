@@ -291,8 +291,8 @@ export default function GraphVisualizer() {
   }, [graph, results, selectedNode, draggedNode, snapToGridValue, graphScale])
 
   return (
-    <div className="flex-1 glass-panel rounded-xl p-2 md:p-4 overflow-auto card-hover fade-in relative">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-2 md:mb-4 gap-2">
+    <div className="flex-1 glass-panel rounded-xl p-3 md:p-4 overflow-auto card-hover fade-in relative">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-3 md:mb-4 gap-2">
         <h3 className="text-base md:text-lg font-semibold gold-gradient-text flex items-center gap-2">
           <span>🌐</span> Network Graph
         </h3>
@@ -309,7 +309,7 @@ export default function GraphVisualizer() {
         </div>
       </div>
       
-      <div ref={containerRef} className="relative min-h-[300px] md:min-h-[400px]">
+      <div ref={containerRef} className="relative min-h-[350px] md:min-h-[450px]">
         <svg
           ref={svgRef}
           width="100%"
@@ -338,7 +338,7 @@ export default function GraphVisualizer() {
         )}
       </div>
       
-      <div className="mt-2 md:mt-4 p-2 md:p-3 glass-panel rounded-lg">
+      <div className="mt-3 md:mt-4 p-2 md:p-3 glass-panel rounded-lg">
         <p className="text-xs md:text-sm text-gray-300 flex items-center gap-2">
           <span className="text-yellow-400">💡</span>
           <span className="hidden md:inline">Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure • Scroll to zoom</span>

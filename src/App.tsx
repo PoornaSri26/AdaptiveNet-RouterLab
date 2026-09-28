@@ -24,13 +24,13 @@ function AppContent() {
       />
       
       <div className="relative z-10 flex flex-col h-full fade-in">
-        <header className="glass-panel border-b border-yellow-600/30 p-4 md:p-6 gold-glow">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <header className="glass-panel border-b border-yellow-600/30 p-3 md:p-6 gold-glow">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
             <div className="text-center md:text-left">
-              <h1 className="text-2xl md:text-4xl font-bold gold-gradient-text mb-1 md:mb-2">AdaptiveNet RouterLab</h1>
-              <p className={`text-sm md:text-base font-light ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Next-Generation Network Routing Simulator</p>
+              <h1 className="text-lg md:text-4xl font-bold gold-gradient-text mb-1 md:mb-2">AdaptiveNet RouterLab</h1>
+              <p className={`text-xs md:text-base font-light ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Next-Generation Network Routing Simulator</p>
             </div>
-            <div className="flex items-center gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <ThemeToggle />
               <ScanGridButton
                 label="EXPLORE"
@@ -76,12 +76,16 @@ function AppContent() {
           </div>
         </header>
         
-        <div className="flex flex-col md:flex-row flex-1 overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
-          <ControlPanel />
-          
-          <div className="flex-1 flex flex-col gap-2 md:gap-4 min-w-0">
-            <GraphVisualizer />
-            <AlgorithmPanel />
+        <div className="flex-1 overflow-hidden p-3 md:p-4">
+          <div className="flex flex-col md:flex-row gap-3 md:gap-4 h-full">
+            <div className="w-full md:w-80 flex-shrink-0">
+              <ControlPanel />
+            </div>
+            
+            <div className="flex-1 flex flex-col gap-3 md:gap-4 min-w-0">
+              <GraphVisualizer />
+              <AlgorithmPanel />
+            </div>
           </div>
         </div>
       </div>
