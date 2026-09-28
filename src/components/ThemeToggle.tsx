@@ -7,7 +7,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="glass-panel p-2 rounded-lg hover:bg-black/30 transition-colors"
+      className="glass-panel p-2 rounded-lg hover:bg-black/10 dark:hover:bg-black/30 transition-colors"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
     >
       {theme === 'dark' ? (

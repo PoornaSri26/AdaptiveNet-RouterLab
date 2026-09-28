@@ -12,7 +12,7 @@ function AppContent() {
   const { theme } = useTheme()
 
   return (
-    <div className={`h-screen w-screen text-white flex flex-col relative overflow-hidden ${theme === 'dark' ? 'bg-dark-bg' : 'bg-light-bg'}`}>
+    <div className={`h-screen w-screen flex flex-col relative overflow-hidden ${theme === 'dark' ? 'dark bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       <ParticleDrift 
         style={{ position: 'absolute', inset: 0, zIndex: 0 }}
         density={250}
@@ -28,12 +28,12 @@ function AppContent() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold gold-gradient-text mb-2">AdaptiveNet RouterLab</h1>
-              <p className="text-base text-gray-300 font-light">Next-Generation Network Routing Simulator</p>
+              <p className={`text-base font-light ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Next-Generation Network Routing Simulator</p>
             </div>
             <div className="flex items-center gap-4">
               <ThemeToggle />
               <div className="glass-panel px-4 py-2 rounded-lg">
-                <span className="text-yellow-400 text-sm font-medium">✨ Premium Edition</span>
+                <span className="text-yellow-500 text-sm font-medium">✨ Premium Edition</span>
               </div>
               <ScanGridButton
                 label="EXPLORE"
