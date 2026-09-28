@@ -1,31 +1,40 @@
-import { Graph } from '../types/graph'
 import { dijkstra } from '../algorithms/dijkstra'
 import { bellmanFord } from '../algorithms/bellmanFord'
 import { aStar } from '../algorithms/astar'
 import { bidirectionalDijkstra } from '../algorithms/bidirectionalDijkstra'
 import { generateRandomGraph } from '../utils/graphUtils'
-import { Download, Upload, RotateCcw } from 'lucide-react'
+import { graphPresets } from '../utils/graphPresets'
+import { toast } from '../utils/toast'
+import { Download, Upload, RotateCcw, Search, ChevronDown, ChevronUp, Undo2, Redo2 } from 'lucide-react'
 import ScanGridButton from './ScanGridButton'
+import { useState } from 'react'
+import { useGraphStore } from '../store/graphStore'
+import { useUIStore } from '../store/uiStore'
+import { useAlgorithmStore } from '../store/algorithmStore'
 
-interface ControlPanelProps {
-  graph: Graph
-  setGraph: (graph: Graph) => void
-  selectedAlgorithm: string
-  setSelectedAlgorithm: (algorithm: string) => void
-  sourceNode: number
-  setSourceNode: (node: number) => void
-  setResults: (results: any) => void
-}
+export default function ControlPanel() {
+  const graph = useGraphStore((state) => state.graph)
+  const setGraph = useGraphStore((state) => state.setGraph)
+  const undo = useGraphStore((state) => state.undo)
+  const redo = useGraphStore((state) => state.redo)
+  const canUndo = useGraphStore((state) => state.canUndo())
+  const canRedo = useGraphStore((state) => state.canRedo())
+  
+  const selectedAlgorithm = useUIStore((state) => state.selectedAlgorithm)
+  const setSelectedAlgorithm = useUIStore((state) => state.setSelectedAlgorithm)
+  const sourceNode = useUIStore((state) => state.sourceNode)
+  const setSourceNode = useUIStore((state) => state.setSourceNode)
+  
+  const setResults = useAlgorithmStore((state) => state.setResults)
+  
+  const [searchQuery, setSearchQuery] = useState('')
+  const [expandedSections, setExpandedSections] = useState({
+    algorithm: true,
+    graph: true,
+    import: true,
+    stats: true,
+  })
 
-export default function ControlPanel({
-  graph,
-  setGraph,
-  selectedAlgorithm,
-  setSelectedAlgorithm,
-  sourceNode,
-  setSourceNode,
-  setResults,
-}: ControlPanelProps) {
   const runAlgorithm = () => {
     let result
     switch (selectedAlgorithm) {
@@ -46,6 +55,7 @@ export default function ControlPanel({
         result = dijkstra(graph, sourceNode)
     }
     setResults(result)
+    toast.success(`${selectedAlgorithm} completed successfully`)
   }
 
   const generateGraph = () => {
@@ -56,13 +66,23 @@ export default function ControlPanel({
     )
     setGraph(newGraph)
     setResults(null)
+    toast.success('Random graph generated')
+  }
+
+  const loadPreset = (preset: keyof typeof graphPresets) => {
+    const newGraph = graphPresets[preset]()
+    setGraph(newGraph)
+    setResults(null)
+    toast.success(`${preset} graph loaded`)
   }
 
   const resetGraph = () => {
     const resetNodes = graph.nodes.map((node) => ({ ...node, status: 'active' as const }))
     const resetEdges = graph.edges.map((edge) => ({ ...edge, status: 'active' as const }))
-    setGraph({ nodes: resetNodes, edges: resetEdges })
+    const newGraph = { nodes: resetNodes, edges: resetEdges }
+    setGraph(newGraph)
     setResults(null)
+    toast.info('Graph failures reset')
   }
 
   const exportGraph = () => {
@@ -74,6 +94,7 @@ export default function ControlPanel({
     a.download = 'graph.json'
     a.click()
     URL.revokeObjectURL(url)
+    toast.success('Graph exported successfully')
   }
 
   const importGraph = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +106,9 @@ export default function ControlPanel({
           const importedGraph = JSON.parse(e.target?.result as string)
           setGraph(importedGraph)
           setResults(null)
+          toast.success('Graph imported successfully')
         } catch (error) {
+          toast.error('Failed to import graph: Invalid file format')
           console.error('Failed to import graph:', error)
         }
       }
@@ -102,7 +125,6 @@ export default function ControlPanel({
     }
     const weight = Math.floor(Math.random() * 10) + 1
     
-    // Check if edge already exists
     const exists = graph.edges.some(
       (e) =>
         (e.source === source && e.target === target) ||
@@ -110,198 +132,328 @@ export default function ControlPanel({
     )
     
     if (!exists) {
-      setGraph({
+      const newGraph = {
         ...graph,
         edges: [...graph.edges, { source, target, weight }],
-      })
+      }
+      setGraph(newGraph)
+      toast.success('Edge added')
+    } else {
+      toast.warning('Edge already exists')
     }
   }
 
   const removeNode = () => {
-    if (graph.nodes.length <= 2) return
+    if (graph.nodes.length <= 2) {
+      toast.warning('Cannot remove more nodes (minimum 2 required)')
+      return
+    }
     const nodeId = graph.nodes[graph.nodes.length - 1].id
     const newNodes = graph.nodes.filter((n) => n.id !== nodeId)
     const newEdges = graph.edges.filter(
       (e) => e.source !== nodeId && e.target !== nodeId
     )
-    setGraph({ nodes: newNodes, edges: newEdges })
+    const newGraph = { nodes: newNodes, edges: newEdges }
+    setGraph(newGraph)
     setResults(null)
+    toast.success('Node removed')
   }
+
+  const handleUndo = () => {
+    undo()
+    setResults(null)
+    toast.info('Undo performed')
+  }
+
+  const handleRedo = () => {
+    redo()
+    setResults(null)
+    toast.info('Redo performed')
+  }
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }))
+  }
+
+  const filteredNodes = graph.nodes.filter(node => 
+    node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    node.id.toString().includes(searchQuery)
+  )
 
   return (
     <div className="w-80 glass-panel rounded-xl p-5 overflow-auto card-hover slide-in">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
-          <span className="text-xl">⚡</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
+            <span className="text-xl">⚡</span>
+          </div>
+          <h2 className="text-xl font-bold gold-gradient-text">Controls</h2>
         </div>
-        <h2 className="text-xl font-bold gold-gradient-text">Controls</h2>
-      </div>
-
-      {/* Algorithm Selection */}
-      <div className="mb-5">
-        <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-          <span className="text-yellow-400">🎯</span> Algorithm
-        </label>
-        <select
-          value={selectedAlgorithm}
-          onChange={(e) => setSelectedAlgorithm(e.target.value)}
-          className="w-full input-gold rounded-lg px-4 py-3 text-sm"
-        >
-          <option value="dijkstra">Dijkstra (Binary Heap)</option>
-          <option value="bellman-ford">Bellman-Ford</option>
-          <option value="astar">A* (Euclidean)</option>
-          <option value="bidirectional">Bidirectional Dijkstra</option>
-        </select>
-      </div>
-
-      {/* Source Node Selection */}
-      <div className="mb-5">
-        <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
-          <span className="text-yellow-400">📍</span> Source Node
-        </label>
-        <select
-          value={sourceNode}
-          onChange={(e) => setSourceNode(Number(e.target.value))}
-          className="w-full input-gold rounded-lg px-4 py-3 text-sm"
-        >
-          {graph.nodes.map((node) => (
-            <option key={node.id} value={node.id}>
-              {node.label} (ID: {node.id})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Run Button */}
-      <div className="mb-6">
-        <ScanGridButton
-          label="RUN ALGORITHM"
-          addIcon={true}
-          icon={{
-            type: "symbol",
-            symbol: "▶",
-            size: 24,
-            color: "#FFD700",
-            hoverColor: "#FFA500",
-            side: "left",
-            padding: 8,
-          }}
-          colors={{
-            fill: "rgba(0, 0, 0, 0.6)",
-            hoverFill: "rgba(0, 0, 0, 0.8)",
-            textColor: "#FFD700",
-            hoverTextColor: "#FFA500",
-          }}
-          scan={{
-            color: "#FFD700",
-            speed: 60,
-          }}
-          border={{
-            borderWidth: 2,
-            borderStyle: "solid",
-            borderColor: "rgba(255, 215, 0, 0.5)",
-          }}
-          rounded={8}
-          padding="16px 24px"
-          font={{
-            fontFamily: "Inter",
-            fontWeight: 600,
-            fontSize: 16,
-            letterSpacing: "1px",
-          }}
-          glitchIntensity={2}
-          onClick={runAlgorithm}
-          style={{ width: "100%" }}
-        />
-      </div>
-
-      {/* Graph Operations */}
-      <div className="mb-5">
-        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-          <span className="text-yellow-400">🔧</span> Graph Operations
-        </h3>
-        <div className="space-y-2">
+        <div className="flex gap-2">
           <button
-            onClick={generateGraph}
-            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            onClick={handleUndo}
+            disabled={!canUndo}
+            className="p-2 rounded-lg input-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            title="Undo"
           >
-            <span>🎲</span> Generate Random Graph
+            <Undo2 size={16} />
           </button>
           <button
-            onClick={addEdge}
-            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            onClick={handleRedo}
+            disabled={!canRedo}
+            className="p-2 rounded-lg input-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            title="Redo"
           >
-            <span>➕</span> Add Random Edge
-          </button>
-          <button
-            onClick={removeNode}
-            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
-          >
-            <span>➖</span> Remove Last Node
-          </button>
-          <button
-            onClick={resetGraph}
-            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
-          >
-            <RotateCcw size={14} />
-            Reset Failures
+            <Redo2 size={16} />
           </button>
         </div>
       </div>
 
-      {/* Import/Export */}
+      {/* Search */}
       <div className="mb-5">
-        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-          <span className="text-yellow-400">💾</span> Import / Export
-        </h3>
-        <div className="space-y-2">
-          <button
-            onClick={exportGraph}
-            className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
-          >
-            <Download size={14} />
-            Export JSON
-          </button>
-          <label className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 cursor-pointer">
-            <Upload size={14} />
-            Import JSON
-            <input
-              type="file"
-              accept=".json"
-              onChange={importGraph}
-              className="hidden"
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search nodes..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full input-gold rounded-lg pl-10 pr-4 py-2.5 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Algorithm Section */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleSection('algorithm')}
+          className="w-full flex items-center justify-between text-sm font-medium text-gray-300 mb-3 flex items-center gap-2"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-yellow-400">🎯</span> Algorithm
+          </span>
+          {expandedSections.algorithm ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        
+        {expandedSections.algorithm && (
+          <div className="space-y-3 animate-fade-in">
+            <select
+              value={selectedAlgorithm}
+              onChange={(e) => setSelectedAlgorithm(e.target.value)}
+              className="w-full input-gold rounded-lg px-4 py-3 text-sm"
+            >
+              <option value="dijkstra">Dijkstra (Binary Heap)</option>
+              <option value="bellman-ford">Bellman-Ford</option>
+              <option value="astar">A* (Euclidean)</option>
+              <option value="bidirectional">Bidirectional Dijkstra</option>
+            </select>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center gap-2">
+                <span className="text-yellow-400">📍</span> Source Node
+              </label>
+              <select
+                value={sourceNode}
+                onChange={(e) => setSourceNode(Number(e.target.value))}
+                className="w-full input-gold rounded-lg px-4 py-3 text-sm"
+              >
+                {filteredNodes.map((node) => (
+                  <option key={node.id} value={node.id}>
+                    {node.label} (ID: {node.id})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <ScanGridButton
+              label="RUN ALGORITHM"
+              addIcon={true}
+              icon={{
+                type: "symbol",
+                symbol: "▶",
+                size: 24,
+                color: "#FFD700",
+                hoverColor: "#FFA500",
+                side: "left",
+                padding: 8,
+              }}
+              colors={{
+                fill: "rgba(0, 0, 0, 0.6)",
+                hoverFill: "rgba(0, 0, 0, 0.8)",
+                textColor: "#FFD700",
+                hoverTextColor: "#FFA500",
+              }}
+              scan={{
+                color: "#FFD700",
+                speed: 60,
+              }}
+              border={{
+                borderWidth: 2,
+                borderStyle: "solid",
+                borderColor: "rgba(255, 215, 0, 0.5)",
+              }}
+              rounded={8}
+              padding="16px 24px"
+              font={{
+                fontFamily: "Inter",
+                fontWeight: 600,
+                fontSize: 16,
+                letterSpacing: "1px",
+              }}
+              glitchIntensity={2}
+              onClick={runAlgorithm}
+              style={{ width: "100%" }}
             />
-          </label>
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* Graph Stats */}
-      <div className="glass-panel rounded-xl p-4 gold-border-gradient">
-        <h3 className="text-sm font-medium text-gray-300 mb-3 flex items-center gap-2">
-          <span className="text-yellow-400">📊</span> Graph Stats
-        </h3>
-        <div className="text-sm text-gray-200 space-y-2">
-          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
-            <span className="flex items-center gap-2">
-              <span className="text-yellow-400">🔵</span> Nodes
-            </span>
-            <span className="font-bold text-yellow-400 text-lg">{graph.nodes.length}</span>
+      {/* Graph Operations Section */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleSection('graph')}
+          className="w-full flex items-center justify-between text-sm font-medium text-gray-300 mb-3 flex items-center gap-2"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-yellow-400">🔧</span> Graph Operations
+          </span>
+          {expandedSections.graph ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        
+        {expandedSections.graph && (
+          <div className="space-y-2 animate-fade-in">
+            <div className="mb-3">
+              <label className="block text-xs text-gray-400 mb-2">Graph Presets</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => loadPreset('grid')}
+                  className="input-gold hover:bg-black/70 text-white text-xs py-2 px-3 rounded-lg transition-all"
+                >
+                  Grid
+                </button>
+                <button
+                  onClick={() => loadPreset('smallWorld')}
+                  className="input-gold hover:bg-black/70 text-white text-xs py-2 px-3 rounded-lg transition-all"
+                >
+                  Small World
+                </button>
+                <button
+                  onClick={() => loadPreset('scaleFree')}
+                  className="input-gold hover:bg-black/70 text-white text-xs py-2 px-3 rounded-lg transition-all"
+                >
+                  Scale Free
+                </button>
+                <button
+                  onClick={() => loadPreset('tree')}
+                  className="input-gold hover:bg-black/70 text-white text-xs py-2 px-3 rounded-lg transition-all"
+                >
+                  Tree
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={generateGraph}
+              className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            >
+              <span>🎲</span> Generate Random Graph
+            </button>
+            <button
+              onClick={addEdge}
+              className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            >
+              <span>➕</span> Add Random Edge
+            </button>
+            <button
+              onClick={removeNode}
+              className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            >
+              <span>➖</span> Remove Last Node
+            </button>
+            <button
+              onClick={resetGraph}
+              className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            >
+              <RotateCcw size={14} />
+              Reset Failures
+            </button>
           </div>
-          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
-            <span className="flex items-center gap-2">
-              <span className="text-yellow-400">🔗</span> Edges
-            </span>
-            <span className="font-bold text-yellow-400 text-lg">{graph.edges.length}</span>
+        )}
+      </div>
+
+      {/* Import/Export Section */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleSection('import')}
+          className="w-full flex items-center justify-between text-sm font-medium text-gray-300 mb-3 flex items-center gap-2"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-yellow-400">💾</span> Import / Export
+          </span>
+          {expandedSections.import ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        
+        {expandedSections.import && (
+          <div className="space-y-2 animate-fade-in">
+            <button
+              onClick={exportGraph}
+              className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2"
+            >
+              <Download size={14} />
+              Export JSON
+            </button>
+            <label className="w-full input-gold hover:bg-black/70 text-white text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 cursor-pointer">
+              <Upload size={14} />
+              Import JSON
+              <input
+                type="file"
+                accept=".json"
+                onChange={importGraph}
+                className="hidden"
+              />
+            </label>
           </div>
-          <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
-            <span className="flex items-center gap-2">
-              <span className="text-red-400">❌</span> Failed Edges
-            </span>
-            <span className="font-bold text-red-400 text-lg">
-              {graph.edges.filter((e) => e.status === 'failed').length}
-            </span>
+        )}
+      </div>
+
+      {/* Graph Stats Section */}
+      <div>
+        <button
+          onClick={() => toggleSection('stats')}
+          className="w-full flex items-center justify-between text-sm font-medium text-gray-300 mb-3 flex items-center gap-2"
+        >
+          <span className="flex items-center gap-2">
+            <span className="text-yellow-400">📊</span> Graph Stats
+          </span>
+          {expandedSections.stats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+        
+        {expandedSections.stats && (
+          <div className="glass-panel rounded-xl p-4 gold-border-gradient animate-fade-in">
+            <div className="text-sm text-gray-200 space-y-2">
+              <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+                <span className="flex items-center gap-2">
+                  <span className="text-yellow-400">🔵</span> Nodes
+                </span>
+                <span className="font-bold text-yellow-400 text-lg">{graph.nodes.length}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+                <span className="flex items-center gap-2">
+                  <span className="text-yellow-400">🔗</span> Edges
+                </span>
+                <span className="font-bold text-yellow-400 text-lg">{graph.edges.length}</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-black/30 rounded-lg">
+                <span className="flex items-center gap-2">
+                  <span className="text-red-400">❌</span> Failed Edges
+                </span>
+                <span className="font-bold text-red-400 text-lg">
+                  {graph.edges.filter((e) => e.status === 'failed').length}
+                </span>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

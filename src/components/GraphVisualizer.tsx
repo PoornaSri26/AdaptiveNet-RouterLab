@@ -1,26 +1,64 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import * as d3 from 'd3'
-import { Graph, AlgorithmResult } from '../types/graph'
+import ZoomControls from './ZoomControls'
+import Minimap from './Minimap'
+import Tooltip from './Tooltip'
+import { useGraphStore } from '../store/graphStore'
+import { useAlgorithmStore } from '../store/algorithmStore'
 
-interface GraphVisualizerProps {
-  graph: Graph
-  setGraph: (graph: Graph) => void
-  results: AlgorithmResult | null
-}
-
-export default function GraphVisualizer({ graph, setGraph, results }: GraphVisualizerProps) {
+export default function GraphVisualizer() {
+  const graph = useGraphStore((state) => state.graph)
+  const setGraph = useGraphStore((state) => state.setGraph)
+  const results = useAlgorithmStore((state) => state.results)
   const svgRef = useRef<SVGSVGElement>(null)
   const [selectedNode, setSelectedNode] = useState<number | null>(null)
   const [draggedNode, setDraggedNode] = useState<number | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [hoveredEdge, setHoveredEdge] = useState<{ source: number; target: number; weight: number } | null>(null)
+  const [snapToGrid, setSnapToGrid] = useState(false)
+  const GRID_SIZE = 20
+
+  const snapToGridValue = useCallback((value: number) => {
+    if (!snapToGrid) return value
+    return Math.round(value / GRID_SIZE) * GRID_SIZE
+  }, [snapToGrid])
+
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(prev * 1.2, 3))
+  }, [])
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(prev / 1.2, 0.3))
+  }, [])
+
+  const handleZoomFit = useCallback(() => {
+    if (!svgRef.current) return
+    const width = svgRef.current.clientWidth
+    const height = svgRef.current.clientHeight
+    
+    if (graph.nodes.length === 0) return
+    
+    const xPadding = 50
+    const yPadding = 50
+    const graphWidth = Math.max(...graph.nodes.map(n => n.x)) + xPadding * 2
+    const graphHeight = Math.max(...graph.nodes.map(n => n.y)) + yPadding * 2
+    
+    const scaleX = width / graphWidth
+    const scaleY = height / graphHeight
+    const newZoom = Math.min(scaleX, scaleY, 1)
+    
+    setZoom(newZoom)
+  }, [graph])
+
+  const handleReset = useCallback(() => {
+    setZoom(1)
+  }, [])
 
   useEffect(() => {
     if (!svgRef.current) return
 
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
-
-    const width = 800
-    const height = 600
 
     // Create arrow marker
     svg.append('defs')
@@ -64,7 +102,7 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
     }
 
     // Draw edges
-    const edges = svg.selectAll<SVGLineElement, any>('line')
+    svg.selectAll<SVGLineElement, any>('line')
       .data(graph.edges)
       .enter()
       .append('line')
@@ -81,11 +119,16 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .attr('stroke-opacity', (d: any) => highlightedEdges.has(`${d.source}-${d.target}`) ? 1 : 0.6)
       .attr('marker-end', (d: any) => highlightedEdges.has(`${d.source}-${d.target}`) ? 'url(#arrowhead-highlight)' : 'url(#arrowhead)')
       .style('cursor', 'pointer')
-      .on('click', (event: MouseEvent, d: any) => {
-        event.stopPropagation()
+      .on('mouseenter', (_event: MouseEvent, d: any) => {
+        setHoveredEdge({ source: d.source, target: d.target, weight: d.weight })
+      })
+      .on('mouseleave', () => {
+        setHoveredEdge(null)
+      })
+      .on('click', (_event: MouseEvent, d: any) => {
         const newEdges = graph.edges.map((edge) =>
           edge.source === d.source && edge.target === d.target
-            ? { ...edge, status: edge.status === 'failed' ? 'active' : 'failed' }
+            ? { ...edge, status: (edge.status === 'failed' ? 'active' : 'failed') as 'active' | 'failed' }
             : edge
         )
         setGraph({ ...graph, edges: newEdges })
@@ -113,7 +156,7 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .text((d: any) => d.weight)
 
     // Draw nodes
-    const nodes = svg.selectAll<SVGCircleElement, any>('circle')
+    svg.selectAll<SVGCircleElement, any>('circle')
       .data(graph.nodes)
       .enter()
       .append('circle')
@@ -153,12 +196,35 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       .style('pointer-events', 'none')
       .text((d: any) => d.label)
 
+    // Draw edge labels
+    svg.selectAll<SVGTextElement, any>('text.edge-label')
+      .data(graph.edges)
+      .enter()
+      .append('text')
+      .attr('class', 'edge-label')
+      .attr('x', (d: any) => {
+        const n1 = graph.nodes.find((n) => n.id === d.source)!
+        const n2 = graph.nodes.find((n) => n.id === d.target)!
+        return (n1.x + n2.x) / 2
+      })
+      .attr('y', (d: any) => {
+        const n1 = graph.nodes.find((n) => n.id === d.source)!
+        const n2 = graph.nodes.find((n) => n.id === d.target)!
+        return (n1.y + n2.y) / 2 - 10
+      })
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#9ca3af')
+      .attr('font-size', '12px')
+      .text((d: any) => d.weight)
+
     // Drag behavior
     svg.on('mousemove', (event: MouseEvent) => {
       if (draggedNode !== null) {
         const [x, y] = d3.pointer(event)
+        const snappedX = snapToGridValue(x)
+        const snappedY = snapToGridValue(y)
         const newNodes = graph.nodes.map((node) =>
-          node.id === draggedNode ? { ...node, x, y } : node
+          node.id === draggedNode ? { ...node, x: snappedX, y: snappedY } : node
         )
         setGraph({ ...graph, nodes: newNodes })
       }
@@ -179,35 +245,72 @@ export default function GraphVisualizer({ graph, setGraph, results }: GraphVisua
       const newNode = {
         id: newId,
         label: String.fromCharCode(65 + (newId % 26)) + (newId >= 26 ? Math.floor(newId / 26) : ''),
-        x,
-        y,
+        x: snapToGridValue(x),
+        y: snapToGridValue(y),
       }
       setGraph({ ...graph, nodes: [...graph.nodes, newNode] })
     })
 
-  }, [graph, results, selectedNode, draggedNode])
+    // Wheel zoom
+    svg.on('wheel', (event: WheelEvent) => {
+      event.preventDefault()
+      const delta = event.deltaY > 0 ? 0.9 : 1.1
+      setZoom(prev => Math.max(0.3, Math.min(3, prev * delta)))
+    })
+
+  }, [graph, results, selectedNode, draggedNode, snapToGridValue])
 
   return (
-    <div className="flex-1 glass-panel rounded-xl p-4 overflow-auto card-hover fade-in">
+    <div className="flex-1 glass-panel rounded-xl p-4 overflow-auto card-hover fade-in relative">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold gold-gradient-text flex items-center gap-2">
           <span>🌐</span> Network Graph
         </h3>
-        <div className="glass-panel px-3 py-1 rounded-full text-xs text-yellow-400">
-          Interactive Canvas
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setSnapToGrid(!snapToGrid)}
+            className={`glass-panel px-3 py-1 rounded-full text-xs transition-colors ${snapToGrid ? 'text-yellow-400 border-yellow-500' : 'text-gray-400'}`}
+          >
+            {snapToGrid ? '📐 Grid On' : '📐 Grid Off'}
+          </button>
+          <div className="glass-panel px-3 py-1 rounded-full text-xs text-yellow-400">
+            Interactive Canvas
+          </div>
         </div>
       </div>
-      <svg
-        ref={svgRef}
-        width="100%"
-        height="100%"
-        viewBox="0 0 800 600"
-        className="bg-black/50 border border-yellow-600/30 rounded-xl backdrop-blur-md gold-glow"
-      />
+      
+      <div className="relative">
+        <svg
+          ref={svgRef}
+          width="100%"
+          height="100%"
+          viewBox="0 0 800 600"
+          className="bg-black/50 border border-yellow-600/30 rounded-xl backdrop-blur-md gold-glow"
+        />
+        
+        <ZoomControls
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          onZoomFit={handleZoomFit}
+          onReset={handleReset}
+          zoom={zoom}
+        />
+        
+        <Minimap
+          graph={graph}
+        />
+        
+        {hoveredEdge && (
+          <Tooltip content={`Edge: ${hoveredEdge.source} → ${hoveredEdge.target}, Weight: ${hoveredEdge.weight}`}>
+            <div className="absolute top-0 left-0 w-0 h-0" />
+          </Tooltip>
+        )}
+      </div>
+      
       <div className="mt-4 p-3 glass-panel rounded-lg">
         <p className="text-sm text-gray-300 flex items-center gap-2">
           <span className="text-yellow-400">💡</span>
-          <span>Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure</span>
+          <span>Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure • Scroll to zoom</span>
         </p>
       </div>
     </div>

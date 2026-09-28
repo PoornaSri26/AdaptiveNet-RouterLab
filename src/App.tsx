@@ -1,36 +1,18 @@
-import { useState } from 'react'
 import GraphVisualizer from './components/GraphVisualizer'
 import AlgorithmPanel from './components/AlgorithmPanel'
 import ControlPanel from './components/ControlPanel'
 import ParticleDrift from './components/ParticleDrift'
 import ScanGridButton from './components/ScanGridButton'
-import { Graph, Edge, Node } from './types/graph'
+import { ThemeProvider, useTheme } from './contexts/ThemeContext'
+import ThemeToggle from './components/ThemeToggle'
+import ToastContainer from './components/ToastContainer'
+import './index.css'
 
-function App() {
-  const [graph, setGraph] = useState<Graph>({
-    nodes: [
-      { id: 0, label: 'A', x: 400, y: 100 },
-      { id: 1, label: 'B', x: 200, y: 300 },
-      { id: 2, label: 'C', x: 600, y: 300 },
-      { id: 3, label: 'D', x: 300, y: 500 },
-      { id: 4, label: 'E', x: 500, y: 500 },
-    ],
-    edges: [
-      { source: 0, target: 1, weight: 4 },
-      { source: 0, target: 2, weight: 2 },
-      { source: 1, target: 2, weight: 1 },
-      { source: 1, target: 3, weight: 5 },
-      { source: 2, target: 4, weight: 10 },
-      { source: 3, target: 4, weight: 3 },
-    ],
-  })
-
-  const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>('dijkstra')
-  const [sourceNode, setSourceNode] = useState<number>(0)
-  const [results, setResults] = useState<any>(null)
+function AppContent() {
+  const { theme } = useTheme()
 
   return (
-    <div className="h-screen w-screen text-white flex flex-col relative overflow-hidden">
+    <div className={`h-screen w-screen text-white flex flex-col relative overflow-hidden ${theme === 'dark' ? 'bg-dark-bg' : 'bg-light-bg'}`}>
       <ParticleDrift 
         style={{ position: 'absolute', inset: 0, zIndex: 0 }}
         density={250}
@@ -49,6 +31,7 @@ function App() {
               <p className="text-base text-gray-300 font-light">Next-Generation Network Routing Simulator</p>
             </div>
             <div className="flex items-center gap-4">
+              <ThemeToggle />
               <div className="glass-panel px-4 py-2 rounded-lg">
                 <span className="text-yellow-400 text-sm font-medium">✨ Premium Edition</span>
               </div>
@@ -96,30 +79,24 @@ function App() {
         </header>
         
         <div className="flex flex-1 overflow-hidden p-4 gap-4">
-          <ControlPanel
-            graph={graph}
-            setGraph={setGraph}
-            selectedAlgorithm={selectedAlgorithm}
-            setSelectedAlgorithm={setSelectedAlgorithm}
-            sourceNode={sourceNode}
-            setSourceNode={setSourceNode}
-            setResults={setResults}
-          />
+          <ControlPanel />
           
           <div className="flex-1 flex flex-col gap-4">
-            <GraphVisualizer
-              graph={graph}
-              setGraph={setGraph}
-              results={results}
-            />
-            <AlgorithmPanel
-              results={results}
-              algorithm={selectedAlgorithm}
-            />
+            <GraphVisualizer />
+            <AlgorithmPanel />
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   )
 }
 

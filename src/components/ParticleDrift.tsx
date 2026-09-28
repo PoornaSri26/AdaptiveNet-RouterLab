@@ -54,6 +54,12 @@ void main(){
   float cov = clamp((v_half - abs(v_off)) / 0.75 + 0.5, 0.0, 1.0);
   float a = v_alpha * cov;
   vec3 col = mix(uBase, uAccent, v_mix);
+  
+  // Add subtle gold glow for accent lines
+  if (v_mix > 0.5) {
+    col += uAccent * 0.2 * cov;
+  }
+  
   gl_FragColor = vec4(col * a, a);
 }
 `
@@ -87,7 +93,14 @@ varying float v_lit;
 void main(){
   float d = length(gl_PointCoord - 0.5) * 2.0;
   float disc = 1.0 - smoothstep(0.72, 1.0, d);
+  
+  // Add subtle glow effect
+  float glow = 1.0 - smoothstep(0.0, 0.5, d);
   vec3 col = mix(uBase, uAccent, v_lit);
+  
+  // Enhance gold color with glow
+  col += uAccent * glow * 0.3 * v_lit;
+  
   float a = disc * mix(uRestAlpha, 1.0, v_lit);
   if (a <= 0.004) discard;
   gl_FragColor = vec4(col * a, a);
@@ -188,14 +201,15 @@ interface Props {
     hover?: number
     linkDistance?: number
     linkThickness?: number
+    showOverlay?: boolean
 }
 
 export default function ParticleDrift(props: Props) {
     const {
         style,
-        background = "linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%)",
-        baseColor = "#E8E8E8",
-        accentColor = "#FFD700",
+        background = "radial-gradient(ellipse at top, #1a1a2e 0%, #0d0d1a 50%, #050508 100%)",
+        baseColor = "#F5F5F5",
+        accentColor = "#D4AF37",
         density = 400,
         dotSize = 6,
         speed = 50,
@@ -205,6 +219,7 @@ export default function ParticleDrift(props: Props) {
         linkThickness = 1,
         width,
         height,
+        showOverlay = true,
     } = props
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -419,8 +434,8 @@ export default function ParticleDrift(props: Props) {
             gl.enable(gl.BLEND)
             gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
-            const cb = parseColor(v.base as string, [0.912, 0.912, 0.912])
-            const ca = parseColor(v.accent as string, [1.0, 0.843, 0.0])
+            const cb = parseColor(v.base as string, [0.960, 0.960, 0.960])
+            const ca = parseColor(v.accent as string, [0.831, 0.686, 0.216])
 
             if (lines > 0) {
                 gl.useProgram(lineProg)
@@ -520,6 +535,7 @@ export default function ParticleDrift(props: Props) {
                 minHeight: 800,
                 width: typeof width === "number" && width > 0 ? width : "100%",
                 height: typeof height === "number" && height > 0 ? height : "100%",
+                boxShadow: "inset 0 0 100px rgba(212, 175, 55, 0.05)",
                 ...style,
             }}
         >
@@ -527,7 +543,17 @@ export default function ParticleDrift(props: Props) {
                 ref={canvasRef}
                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
             />
-
+            {showOverlay && (
+                <div
+                    style={{
+                        position: "absolute",
+                        inset: 0,
+                        pointerEvents: "none",
+                        background: "radial-gradient(circle at 30% 20%, rgba(212, 175, 55, 0.03) 0%, transparent 50%)",
+                        mixBlendMode: "screen",
+                    }}
+                />
+            )}
         </div>
     )
 }

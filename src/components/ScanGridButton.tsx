@@ -26,12 +26,6 @@ const TRANSPARENT_SPLIT = `0px 0px 0px rgba(255,0,80,0), 0px 0px 0px rgba(0,220,
 
 const SECONDS_AT_SPEED_1 = 10;
 
-const DEFAULT_TRANSITION: Transition = {
-    type: "tween",
-    ease: "easeInOut",
-    duration: 0.3,
-};
-
 export type IconConfig = {
     type?: "symbol" | "image";
     symbol?: string;

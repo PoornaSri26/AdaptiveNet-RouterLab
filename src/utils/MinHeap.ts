@@ -6,7 +6,7 @@ export interface HeapItem<T> {
 export class MinHeap<T> {
   private heap: HeapItem<T>[] = []
 
-  constructor(private compare: (a: T, b: T) => number) {}
+  constructor(private compare?: (a: T, b: T) => number) {}
 
   push(item: T, priority: number): void {
     this.heap.push({ item, priority })
@@ -38,7 +38,10 @@ export class MinHeap<T> {
   private bubbleUp(index: number): void {
     while (index > 0) {
       const parentIndex = Math.floor((index - 1) / 2)
-      if (this.heap[parentIndex].priority <= this.heap[index].priority) break
+      const shouldSwap = this.compare
+        ? this.compare(this.heap[index].item, this.heap[parentIndex].item) < 0
+        : this.heap[parentIndex].priority <= this.heap[index].priority
+      if (!shouldSwap) break
       ;[this.heap[parentIndex], this.heap[index]] = [
         this.heap[index],
         this.heap[parentIndex],
@@ -54,18 +57,18 @@ export class MinHeap<T> {
       let rightChild = 2 * index + 2
       let smallest = index
 
-      if (
-        leftChild < length &&
-        this.heap[leftChild].priority < this.heap[smallest].priority
-      ) {
-        smallest = leftChild
+      if (leftChild < length) {
+        const shouldSwap = this.compare
+          ? this.compare(this.heap[leftChild].item, this.heap[smallest].item) < 0
+          : this.heap[leftChild].priority < this.heap[smallest].priority
+        if (shouldSwap) smallest = leftChild
       }
 
-      if (
-        rightChild < length &&
-        this.heap[rightChild].priority < this.heap[smallest].priority
-      ) {
-        smallest = rightChild
+      if (rightChild < length) {
+        const shouldSwap = this.compare
+          ? this.compare(this.heap[rightChild].item, this.heap[smallest].item) < 0
+          : this.heap[rightChild].priority < this.heap[smallest].priority
+        if (shouldSwap) smallest = rightChild
       }
 
       if (smallest === index) break

@@ -14,7 +14,7 @@ export function dijkstra(
   const predecessors = Array(n).fill(-1)
   distances[source] = 0
   
-  const heap = new MinHeap<number>((a, b) => distances[a] - distances[b])
+  const heap = new MinHeap<number>()
   heap.push(source, 0)
   
   while (!heap.isEmpty()) {

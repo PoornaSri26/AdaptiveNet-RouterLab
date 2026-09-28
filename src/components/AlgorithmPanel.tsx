@@ -1,11 +1,8 @@
-import { AlgorithmResult } from '../types/graph'
 
-interface AlgorithmPanelProps {
-  results: AlgorithmResult | null
-  algorithm: string
-}
+import { useAlgorithmStore } from '../store/algorithmStore'
 
-export default function AlgorithmPanel({ results, algorithm }: AlgorithmPanelProps) {
+export default function AlgorithmPanel() {
+  const results = useAlgorithmStore((state) => state.results)
   if (!results) {
     return (
       <div className="glass-panel rounded-xl p-5 fade-in">

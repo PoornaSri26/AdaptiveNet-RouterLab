@@ -1,5 +1,5 @@
 import { Graph, AlgorithmResult, PathResult } from '../types/graph'
-import { buildAdjacencyList, reconstructPath } from '../utils/graphUtils'
+import { reconstructPath } from '../utils/graphUtils'
 
 export function bellmanFord(
   graph: Graph,

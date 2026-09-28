@@ -1,6 +1,6 @@
 import { Graph, AlgorithmResult, PathResult } from '../types/graph'
 import { MinHeap } from '../utils/MinHeap'
-import { buildAdjacencyList, reconstructPath } from '../utils/graphUtils'
+import { buildAdjacencyList } from '../utils/graphUtils'
 
 export function bidirectionalDijkstra(
   graph: Graph,
