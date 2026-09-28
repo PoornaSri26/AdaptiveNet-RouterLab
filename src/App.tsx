@@ -36,8 +36,8 @@ function AppContent() {
                 label="EXPLORE"
                 addIcon={true}
                 icon={{
-                  type: "symbol",
-                  symbol: "🚀",
+                  type: "lucide",
+                  icon: "ArrowRight",
                   size: 16,
                   color: "#FFD700",
                   hoverColor: "#FFA500",

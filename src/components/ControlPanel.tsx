@@ -5,7 +5,7 @@ import { bidirectionalDijkstra } from '../algorithms/bidirectionalDijkstra'
 import { generateRandomGraph } from '../utils/graphUtils'
 import { graphPresets } from '../utils/graphPresets'
 import { toast } from '../utils/toast'
-import { Download, Upload, RotateCcw, Search, ChevronDown, ChevronUp, Undo2, Redo2 } from 'lucide-react'
+import { Download, Upload, RotateCcw, Search, ChevronDown, ChevronUp, Undo2, Redo2, Settings, Target, Wrench, Database, BarChart2, Circle, Link2, X, Play, Clock, AlertTriangle, Route, Sparkles, MapPin, Plus, Minus } from 'lucide-react'
 import ScanGridButton from './ScanGridButton'
 import { useState } from 'react'
 import { useGraphStore } from '../store/graphStore'
@@ -187,7 +187,7 @@ export default function ControlPanel() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
-            <span className="text-xl">⚡</span>
+            <Settings size={20} className="text-black" />
           </div>
           <h2 className="text-xl font-bold gold-gradient-text">Controls</h2>
         </div>
@@ -232,7 +232,7 @@ export default function ControlPanel() {
           className={`w-full h-11 flex items-center justify-between text-sm font-medium px-4 rounded-lg input-gold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
-            <span className="text-yellow-500">🎯</span> Algorithm
+            <Target size={16} className="text-yellow-500" /> Algorithm
           </span>
           {expandedSections.algorithm ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -252,7 +252,7 @@ export default function ControlPanel() {
 
             <div>
               <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
-                <span className="text-yellow-500">📍</span> Source Node
+                <MapPin size={16} className="text-yellow-500" /> Source Node
               </label>
               <select
                 value={sourceNode}
@@ -271,8 +271,8 @@ export default function ControlPanel() {
               label="RUN"
               addIcon={true}
               icon={{
-                type: "symbol",
-                symbol: "▶",
+                type: "lucide",
+                icon: "Play",
                 size: 18,
                 color: "#FFD700",
                 hoverColor: "#FFA500",
@@ -317,7 +317,7 @@ export default function ControlPanel() {
           className={`w-full h-11 flex items-center justify-between text-sm font-medium px-4 rounded-lg input-gold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
-            <span className="text-yellow-500">🔧</span> Graph Operations
+            <Wrench size={16} className="text-yellow-500" /> Graph Operations
           </span>
           {expandedSections.graph ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -358,19 +358,19 @@ export default function ControlPanel() {
               onClick={generateGraph}
               className={`w-full h-11 input-gold text-sm px-4 rounded-lg transition-all flex items-center justify-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
-              <span>🎲</span> Generate Random Graph
+              <Sparkles size={16} /> Generate Random Graph
             </button>
             <button
               onClick={addEdge}
               className={`w-full h-11 input-gold text-sm px-4 rounded-lg transition-all flex items-center justify-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
-              <span>➕</span> Add Random Edge
+              <Plus size={16} /> Add Random Edge
             </button>
             <button
               onClick={removeNode}
               className={`w-full h-11 input-gold text-sm px-4 rounded-lg transition-all flex items-center justify-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
-              <span>➖</span> Remove Last Node
+              <Minus size={16} /> Remove Last Node
             </button>
             <button
               onClick={resetGraph}
@@ -390,7 +390,7 @@ export default function ControlPanel() {
           className={`w-full h-11 flex items-center justify-between text-sm font-medium px-4 rounded-lg input-gold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
-            <span className="text-yellow-500">💾</span> Import / Export
+            <Database size={16} className="text-yellow-500" /> Import / Export
           </span>
           {expandedSections.import ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -425,7 +425,7 @@ export default function ControlPanel() {
           className={`w-full h-11 flex items-center justify-between text-sm font-medium px-4 rounded-lg input-gold mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
-            <span className="text-yellow-500">📊</span> Graph Stats
+            <BarChart2 size={16} className="text-yellow-500" /> Graph Stats
           </span>
           {expandedSections.stats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </button>
@@ -435,19 +435,19 @@ export default function ControlPanel() {
             <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
-                  <span className="text-yellow-500">🔵</span> Nodes
+                  <Circle size={16} className="text-yellow-500" /> Nodes
                 </span>
                 <span className="font-bold text-yellow-500 text-base">{graph.nodes.length}</span>
               </div>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
-                  <span className="text-yellow-500">🔗</span> Edges
+                  <Link2 size={16} className="text-yellow-500" /> Edges
                 </span>
                 <span className="font-bold text-yellow-500 text-base">{graph.edges.length}</span>
               </div>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
-                  <span className="text-red-400">❌</span> Failed Edges
+                  <X size={16} className="text-red-400" /> Failed Edges
                 </span>
                 <span className="font-bold text-red-400 text-base">
                   {graph.edges.filter((e) => e.status === 'failed').length}

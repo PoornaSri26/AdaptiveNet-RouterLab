@@ -1,5 +1,6 @@
 
 import { useAlgorithmStore } from '../store/algorithmStore'
+import { BarChart2, Rocket, Clock, AlertTriangle, Route } from 'lucide-react'
 
 export default function AlgorithmPanel() {
   const results = useAlgorithmStore((state) => state.results)
@@ -8,12 +9,12 @@ export default function AlgorithmPanel() {
       <div className="glass-panel rounded-xl p-4 md:p-5 fade-in">
         <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
-            <span className="text-lg md:text-xl">📈</span>
+            <BarChart2 size={20} className="text-black" />
           </div>
           <h3 className="text-lg md:text-xl font-bold gold-gradient-text">Algorithm Results</h3>
         </div>
         <div className="text-center py-6 md:py-8">
-          <div className="text-3xl md:text-4xl mb-2 md:mb-3">🚀</div>
+          <Rocket size={48} className="mx-auto mb-2 md:mb-3 text-yellow-400" />
           <p className="text-gray-400 text-sm md:text-base">Run an algorithm to see results</p>
         </div>
       </div>
@@ -25,14 +26,14 @@ export default function AlgorithmPanel() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-4 gap-2">
         <div className="flex items-center gap-2 md:gap-3">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
-            <span className="text-lg md:text-xl">📈</span>
+            <BarChart2 size={20} className="text-black" />
           </div>
           <h3 className="text-lg md:text-xl font-bold gold-gradient-text">Algorithm Results</h3>
         </div>
         <div className="glass-panel px-2 md:px-3 py-1 md:py-2 rounded-lg text-xs md:text-sm">
           <span className="text-yellow-400 font-semibold">{results.algorithm}</span>
-          <span className="text-gray-400 ml-1 md:ml-2">
-            ⏱️ {results.executionTime.toFixed(2)}ms
+          <span className="text-gray-400 ml-1 md:ml-2 flex items-center gap-1">
+            <Clock size={12} /> {results.executionTime.toFixed(2)}ms
           </span>
         </div>
       </div>
@@ -40,7 +41,7 @@ export default function AlgorithmPanel() {
       {results.hasNegativeCycle && (
         <div className="bg-red-900/30 border border-red-700 rounded-xl p-2 md:p-3 mb-3 md:mb-4 animate-pulse-gold">
           <p className="text-red-400 text-xs md:text-sm flex items-center gap-2">
-            <span>⚠️</span> Negative cycle detected!
+            <AlertTriangle size={14} /> Negative cycle detected!
           </p>
         </div>
       )}
@@ -48,7 +49,7 @@ export default function AlgorithmPanel() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         <div className="glass-panel rounded-xl p-3 md:p-4">
           <h4 className="text-xs md:text-sm font-medium text-gray-300 mb-2 md:mb-3 flex items-center gap-2">
-            <span className="text-yellow-400">🛤️</span> Shortest Paths
+            <Route size={14} className="text-yellow-400" /> Shortest Paths
           </h4>
           <div className="space-y-2 max-h-24 md:max-h-32 overflow-auto">
             {results.paths.map((path) => (
@@ -67,7 +68,7 @@ export default function AlgorithmPanel() {
 
         <div className="glass-panel rounded-xl p-3 md:p-4">
           <h4 className="text-xs md:text-sm font-medium text-gray-300 mb-2 md:mb-3 flex items-center gap-2">
-            <span className="text-yellow-400">📊</span> Distance Array
+            <BarChart2 size={14} className="text-yellow-400" /> Distance Array
           </h4>
           <div className="grid grid-cols-4 md:grid-cols-5 gap-1 md:gap-2 text-xs">
             {results.distances.map((dist, i) => (

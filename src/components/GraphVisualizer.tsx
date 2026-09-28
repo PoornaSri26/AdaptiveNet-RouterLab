@@ -5,6 +5,7 @@ import Minimap from './Minimap'
 import Tooltip from './Tooltip'
 import { useGraphStore } from '../store/graphStore'
 import { useAlgorithmStore } from '../store/algorithmStore'
+import { Globe, Grid, Lightbulb } from 'lucide-react'
 
 export default function GraphVisualizer() {
   const graph = useGraphStore((state) => state.graph)
@@ -294,14 +295,14 @@ export default function GraphVisualizer() {
     <div className="flex-1 glass-panel rounded-xl p-3 md:p-4 overflow-auto card-hover fade-in relative">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-3 md:mb-4 gap-2">
         <h3 className="text-base md:text-lg font-semibold gold-gradient-text flex items-center gap-2">
-          <span>🌐</span> Network Graph
+          <Globe size={18} className="text-yellow-500" /> Network Graph
         </h3>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSnapToGrid(!snapToGrid)}
-            className={`glass-panel px-2 md:px-3 py-1 rounded-full text-xs transition-colors ${snapToGrid ? 'text-yellow-400 border-yellow-500' : 'text-gray-400'}`}
+            className={`glass-panel px-2 md:px-3 py-1 rounded-full text-xs transition-colors flex items-center gap-1 ${snapToGrid ? 'text-yellow-400 border-yellow-500' : 'text-gray-400'}`}
           >
-            {snapToGrid ? '📐 Grid On' : '📐 Grid Off'}
+            <Grid size={12} /> {snapToGrid ? 'Grid On' : 'Grid Off'}
           </button>
           <div className="glass-panel px-2 md:px-3 py-1 rounded-full text-xs text-yellow-400 hidden md:block">
             Interactive Canvas
@@ -340,7 +341,7 @@ export default function GraphVisualizer() {
       
       <div className="mt-3 md:mt-4 p-2 md:p-3 glass-panel rounded-lg">
         <p className="text-xs md:text-sm text-gray-300 flex items-center gap-2">
-          <span className="text-yellow-400">💡</span>
+          <Lightbulb size={14} className="text-yellow-400" />
           <span className="hidden md:inline">Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure • Scroll to zoom</span>
           <span className="md:hidden">Tap node to select • Double-tap to add node • Drag to move • Scroll to zoom</span>
         </p>
