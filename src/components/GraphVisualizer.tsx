@@ -261,30 +261,31 @@ export default function GraphVisualizer() {
   }, [graph, results, selectedNode, draggedNode, snapToGridValue])
 
   return (
-    <div className="flex-1 glass-panel rounded-xl p-4 overflow-auto card-hover fade-in relative">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold gold-gradient-text flex items-center gap-2">
+    <div className="flex-1 glass-panel rounded-xl p-2 md:p-4 overflow-auto card-hover fade-in relative">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-2 md:mb-4 gap-2">
+        <h3 className="text-base md:text-lg font-semibold gold-gradient-text flex items-center gap-2">
           <span>🌐</span> Network Graph
         </h3>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSnapToGrid(!snapToGrid)}
-            className={`glass-panel px-3 py-1 rounded-full text-xs transition-colors ${snapToGrid ? 'text-yellow-400 border-yellow-500' : 'text-gray-400'}`}
+            className={`glass-panel px-2 md:px-3 py-1 rounded-full text-xs transition-colors ${snapToGrid ? 'text-yellow-400 border-yellow-500' : 'text-gray-400'}`}
           >
             {snapToGrid ? '📐 Grid On' : '📐 Grid Off'}
           </button>
-          <div className="glass-panel px-3 py-1 rounded-full text-xs text-yellow-400">
+          <div className="glass-panel px-2 md:px-3 py-1 rounded-full text-xs text-yellow-400 hidden md:block">
             Interactive Canvas
           </div>
         </div>
       </div>
       
-      <div className="relative">
+      <div className="relative min-h-[300px] md:min-h-[400px]">
         <svg
           ref={svgRef}
           width="100%"
           height="100%"
           viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
           className="bg-black/50 border border-yellow-600/30 rounded-xl backdrop-blur-md gold-glow"
         />
         
@@ -307,10 +308,11 @@ export default function GraphVisualizer() {
         )}
       </div>
       
-      <div className="mt-4 p-3 glass-panel rounded-lg">
-        <p className="text-sm text-gray-300 flex items-center gap-2">
+      <div className="mt-2 md:mt-4 p-2 md:p-3 glass-panel rounded-lg">
+        <p className="text-xs md:text-sm text-gray-300 flex items-center gap-2">
           <span className="text-yellow-400">💡</span>
-          <span>Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure • Scroll to zoom</span>
+          <span className="hidden md:inline">Click node to select • Double-click to add node • Drag to move • Click edge to toggle failure • Scroll to zoom</span>
+          <span className="md:hidden">Tap node to select • Double-tap to add node • Drag to move • Scroll to zoom</span>
         </p>
       </div>
     </div>

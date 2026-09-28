@@ -24,24 +24,21 @@ function AppContent() {
       />
       
       <div className="relative z-10 flex flex-col h-full fade-in">
-        <header className="glass-panel border-b border-yellow-600/30 p-6 gold-glow">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold gold-gradient-text mb-2">AdaptiveNet RouterLab</h1>
-              <p className={`text-base font-light ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Next-Generation Network Routing Simulator</p>
+        <header className="glass-panel border-b border-yellow-600/30 p-4 md:p-6 gold-glow">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-4xl font-bold gold-gradient-text mb-1 md:mb-2">AdaptiveNet RouterLab</h1>
+              <p className={`text-sm md:text-base font-light ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Next-Generation Network Routing Simulator</p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <ThemeToggle />
-              <div className="glass-panel px-4 py-2 rounded-lg">
-                <span className="text-yellow-500 text-sm font-medium">✨ Premium Edition</span>
-              </div>
               <ScanGridButton
                 label="EXPLORE"
                 addIcon={true}
                 icon={{
                   type: "symbol",
                   symbol: "🚀",
-                  size: 20,
+                  size: 16,
                   color: "#FFD700",
                   hoverColor: "#FFA500",
                   side: "left",
@@ -63,11 +60,11 @@ function AppContent() {
                   borderColor: "rgba(255, 215, 0, 0.4)",
                 }}
                 rounded={6}
-                padding="12px 20px"
+                padding="10px 16px"
                 font={{
                   fontFamily: "Inter",
                   fontWeight: 600,
-                  fontSize: 14,
+                  fontSize: 12,
                   letterSpacing: "0.5px",
                 }}
                 glitchIntensity={1}
@@ -78,10 +75,10 @@ function AppContent() {
           </div>
         </header>
         
-        <div className="flex flex-1 overflow-hidden p-4 gap-4">
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden p-2 md:p-4 gap-2 md:gap-4">
           <ControlPanel />
           
-          <div className="flex-1 flex flex-col gap-4">
+          <div className="flex-1 flex flex-col gap-2 md:gap-4 min-w-0">
             <GraphVisualizer />
             <AlgorithmPanel />
           </div>

@@ -183,13 +183,13 @@ export default function ControlPanel() {
   )
 
   return (
-    <div className="w-80 glass-panel rounded-xl p-5 overflow-auto card-hover slide-in">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
-            <span className="text-xl">⚡</span>
+    <div className="w-full md:w-80 glass-panel rounded-xl p-3 md:p-5 overflow-auto card-hover slide-in">
+      <div className="flex items-center justify-between mb-4 md:mb-6">
+        <div className="flex items-center gap-2 md:gap-3">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center gold-glow">
+            <span className="text-lg md:text-xl">⚡</span>
           </div>
-          <h2 className="text-xl font-bold gold-gradient-text">Controls</h2>
+          <h2 className="text-lg md:text-xl font-bold gold-gradient-text">Controls</h2>
         </div>
         <div className="flex gap-2">
           <button
@@ -198,7 +198,7 @@ export default function ControlPanel() {
             className="p-2 rounded-lg input-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Undo"
           >
-            <Undo2 size={16} />
+            <Undo2 size={14} />
           </button>
           <button
             onClick={handleRedo}
@@ -206,13 +206,13 @@ export default function ControlPanel() {
             className="p-2 rounded-lg input-gold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             title="Redo"
           >
-            <Redo2 size={16} />
+            <Redo2 size={14} />
           </button>
         </div>
       </div>
 
       {/* Search */}
-      <div className="mb-5">
+      <div className="mb-4 md:mb-5">
         <div className="relative">
           <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`} />
           <input
@@ -220,29 +220,29 @@ export default function ControlPanel() {
             placeholder="Search nodes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full input-gold rounded-lg pl-10 pr-4 py-2.5 text-sm"
+            className="w-full input-gold rounded-lg pl-10 pr-4 py-2 md:py-2.5 text-xs md:text-sm"
           />
         </div>
       </div>
 
       {/* Algorithm Section */}
-      <div className="mb-4">
+      <div className="mb-3 md:mb-4">
         <button
           onClick={() => toggleSection('algorithm')}
-          className={`w-full flex items-center justify-between text-sm font-medium mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+          className={`w-full flex items-center justify-between text-xs md:text-sm font-medium mb-2 md:mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
             <span className="text-yellow-500">🎯</span> Algorithm
           </span>
-          {expandedSections.algorithm ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expandedSections.algorithm ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         
         {expandedSections.algorithm && (
-          <div className="space-y-3 animate-fade-in">
+          <div className="space-y-2 md:space-y-3 animate-fade-in">
             <select
               value={selectedAlgorithm}
               onChange={(e) => setSelectedAlgorithm(e.target.value)}
-              className="w-full input-gold rounded-lg px-4 py-3 text-sm"
+              className="w-full input-gold rounded-lg px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm"
             >
               <option value="dijkstra">Dijkstra (Binary Heap)</option>
               <option value="bellman-ford">Bellman-Ford</option>
@@ -251,13 +251,13 @@ export default function ControlPanel() {
             </select>
 
             <div>
-              <label className={`block text-sm font-medium mb-2 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
+              <label className={`block text-xs md:text-sm font-medium mb-2 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>
                 <span className="text-yellow-500">📍</span> Source Node
               </label>
               <select
                 value={sourceNode}
                 onChange={(e) => setSourceNode(Number(e.target.value))}
-                className="w-full input-gold rounded-lg px-4 py-3 text-sm"
+                className="w-full input-gold rounded-lg px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm"
               >
                 {filteredNodes.map((node) => (
                   <option key={node.id} value={node.id}>
@@ -268,16 +268,16 @@ export default function ControlPanel() {
             </div>
 
             <ScanGridButton
-              label="RUN ALGORITHM"
+              label="RUN"
               addIcon={true}
               icon={{
                 type: "symbol",
                 symbol: "▶",
-                size: 24,
+                size: 18,
                 color: "#FFD700",
                 hoverColor: "#FFA500",
                 side: "left",
-                padding: 8,
+                padding: 6,
               }}
               colors={{
                 fill: "rgba(0, 0, 0, 0.6)",
@@ -295,11 +295,11 @@ export default function ControlPanel() {
                 borderColor: "rgba(255, 215, 0, 0.5)",
               }}
               rounded={8}
-              padding="16px 24px"
+              padding="12px 20px"
               font={{
                 fontFamily: "Inter",
                 fontWeight: 600,
-                fontSize: 16,
+                fontSize: 13,
                 letterSpacing: "1px",
               }}
               glitchIntensity={2}
@@ -311,43 +311,43 @@ export default function ControlPanel() {
       </div>
 
       {/* Graph Operations Section */}
-      <div className="mb-4">
+      <div className="mb-3 md:mb-4">
         <button
           onClick={() => toggleSection('graph')}
-          className={`w-full flex items-center justify-between text-sm font-medium mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+          className={`w-full flex items-center justify-between text-xs md:text-sm font-medium mb-2 md:mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
             <span className="text-yellow-500">🔧</span> Graph Operations
           </span>
-          {expandedSections.graph ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expandedSections.graph ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         
         {expandedSections.graph && (
           <div className="space-y-2 animate-fade-in">
-            <div className="mb-3">
+            <div className="mb-2 md:mb-3">
               <label className={`block text-xs mb-2 ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>Graph Presets</label>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => loadPreset('grid')}
-                  className={`input-gold hover:bg-black/70 dark:hover:bg-black/70 hover:bg-gray-200 text-xs py-2 px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                  className={`input-gold text-xs py-2 px-2 md:px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
                 >
                   Grid
                 </button>
                 <button
                   onClick={() => loadPreset('smallWorld')}
-                  className={`input-gold hover:bg-black/70 dark:hover:bg-black/70 hover:bg-gray-200 text-xs py-2 px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                  className={`input-gold text-xs py-2 px-2 md:px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
                 >
                   Small World
                 </button>
                 <button
                   onClick={() => loadPreset('scaleFree')}
-                  className={`input-gold hover:bg-black/70 dark:hover:bg-black/70 hover:bg-gray-200 text-xs py-2 px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                  className={`input-gold text-xs py-2 px-2 md:px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
                 >
                   Scale Free
                 </button>
                 <button
                   onClick={() => loadPreset('tree')}
-                  className={`input-gold hover:bg-black/70 dark:hover:bg-black/70 hover:bg-gray-200 text-xs py-2 px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}
+                  className={`input-gold text-xs py-2 px-2 md:px-3 rounded-lg transition-all ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
                 >
                   Tree
                 </button>
@@ -356,27 +356,27 @@ export default function ControlPanel() {
 
             <button
               onClick={generateGraph}
-              className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
+              className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
               <span>🎲</span> Generate Random Graph
             </button>
             <button
               onClick={addEdge}
-              className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
+              className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
               <span>➕</span> Add Random Edge
             </button>
             <button
               onClick={removeNode}
-              className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
+              className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
               <span>➖</span> Remove Last Node
             </button>
             <button
               onClick={resetGraph}
-              className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
+              className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={12} />
               Reset Failures
             </button>
           </div>
@@ -384,28 +384,28 @@ export default function ControlPanel() {
       </div>
 
       {/* Import/Export Section */}
-      <div className="mb-4">
+      <div className="mb-3 md:mb-4">
         <button
           onClick={() => toggleSection('import')}
-          className={`w-full flex items-center justify-between text-sm font-medium mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+          className={`w-full flex items-center justify-between text-xs md:text-sm font-medium mb-2 md:mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
             <span className="text-yellow-500">💾</span> Import / Export
           </span>
-          {expandedSections.import ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expandedSections.import ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         
         {expandedSections.import && (
           <div className="space-y-2 animate-fade-in">
             <button
               onClick={exportGraph}
-              className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
+              className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}
             >
-              <Download size={14} />
+              <Download size={12} />
               Export JSON
             </button>
-            <label className={`w-full input-gold text-sm py-2.5 px-4 rounded-lg transition-all flex items-center gap-2 cursor-pointer ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}>
-              <Upload size={14} />
+            <label className={`w-full input-gold text-xs md:text-sm py-2 md:py-2.5 px-3 md:px-4 rounded-lg transition-all flex items-center gap-2 cursor-pointer ${theme === 'dark' ? 'text-white hover:bg-black/70' : 'text-gray-900 hover:bg-gray-200'}`}>
+              <Upload size={12} />
               Import JSON
               <input
                 type="file"
@@ -422,34 +422,34 @@ export default function ControlPanel() {
       <div>
         <button
           onClick={() => toggleSection('stats')}
-          className={`w-full flex items-center justify-between text-sm font-medium mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+          className={`w-full flex items-center justify-between text-xs md:text-sm font-medium mb-2 md:mb-3 flex items-center gap-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
         >
           <span className="flex items-center gap-2">
             <span className="text-yellow-500">📊</span> Graph Stats
           </span>
-          {expandedSections.stats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          {expandedSections.stats ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
         
         {expandedSections.stats && (
-          <div className="glass-panel rounded-xl p-4 gold-border-gradient animate-fade-in">
-            <div className={`text-sm space-y-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
+          <div className="glass-panel rounded-xl p-3 md:p-4 gold-border-gradient animate-fade-in">
+            <div className={`text-xs md:text-sm space-y-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-800'}`}>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
                   <span className="text-yellow-500">🔵</span> Nodes
                 </span>
-                <span className="font-bold text-yellow-500 text-lg">{graph.nodes.length}</span>
+                <span className="font-bold text-yellow-500 text-base md:text-lg">{graph.nodes.length}</span>
               </div>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
                   <span className="text-yellow-500">🔗</span> Edges
                 </span>
-                <span className="font-bold text-yellow-500 text-lg">{graph.edges.length}</span>
+                <span className="font-bold text-yellow-500 text-base md:text-lg">{graph.edges.length}</span>
               </div>
               <div className={`flex justify-between items-center p-2 rounded-lg ${theme === 'dark' ? 'bg-black/30' : 'bg-gray-100'}`}>
                 <span className="flex items-center gap-2">
                   <span className="text-red-400">❌</span> Failed Edges
                 </span>
-                <span className="font-bold text-red-400 text-lg">
+                <span className="font-bold text-red-400 text-base md:text-lg">
                   {graph.edges.filter((e) => e.status === 'failed').length}
                 </span>
               </div>
